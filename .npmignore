@@ -6,7 +6,6 @@
 !*.d.ts
 tsconfig*.json
 tslint.json
-ng-lint.json
 
 # Debug files
 *.js.map

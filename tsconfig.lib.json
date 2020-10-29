@@ -1,7 +1,9 @@
 {
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "target": "es5",
-    "module": "commonjs",
+    "outDir": "../../out-tsc/lib",
+    "target": "es2015",
+    "module": "es2015",
     "moduleResolution": "node",
     "declaration": true,
     "sourceMap": true,
@@ -9,13 +11,22 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "importHelpers": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "types": ["grecaptcha"],
     "lib": [
       "dom",
-      "es2015"
+      "es2018"
     ]
   },
-  "stripInternal": true,
-  "skipLibCheck": true,
+  "angularCompilerOptions": {
+    "annotateForClosureCompiler": true,
+    "skipTemplateCodegen": true,
+    "strictMetadataEmit": true,
+    "fullTemplateTypeCheck": true,
+    "strictInjectionParameters": true,
+    "enableResourceInlining": true
+  },
+  "exclude": [
+    "src/test.ts",
+    "**/*.spec.ts"
+  ]
 }
