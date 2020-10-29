@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { GrecaptchaService } from './grecaptcha.service';
 
@@ -10,15 +10,19 @@ import { GrecaptchaService } from './grecaptcha.service';
   `,
   styles: [],
 })
-export class GrecaptchaComponent implements OnDestroy {
+export class GrecaptchaComponent implements OnInit, OnDestroy {
 
   @Input() gRecaptchaId: string = '';
+  @Input() showV2Captcha: boolean;
+  @Input() showV3Captcha: boolean;
   private captchaScriptSubscription: Subscription;
 
-  constructor(private gRecaptchaService: GrecaptchaService) {
-    this.gRecaptchaService.callRecaptchaAPI();
+  constructor(private gRecaptchaService: GrecaptchaService) { }
+
+  public ngOnInit() {
+    this.gRecaptchaService.callRecaptchaAPI(this.showV2Captcha, this.showV3Captcha);
     this.captchaScriptSubscription = this.gRecaptchaService.captchaScriptStatus().subscribe((status) => {
-      if (status && this.gRecaptchaService.hasV2Captcha()) {
+      if (status && (this.gRecaptchaService.hasV2Captcha() && (this.showV2Captcha === undefined || this.showV2Captcha))) {
         this.gRecaptchaService.renderV2Captch('grecaptcha-' + this.gRecaptchaId.split(' ').join(''));
       }
     });

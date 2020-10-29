@@ -45,10 +45,15 @@ export class GrecaptchaService {
     this.hasV3CaptchaKey.next(this.v3SiteKey ? true : false);
   }
 
-  public callRecaptchaAPI() {
-    if (this.hasV2Captcha() && !this.hasV3Captcha() && !this.scriptLoadedStatus) {
+  public callRecaptchaAPI(showV2Captcha: boolean, showV3Captcha: boolean) {
+    if (
+      this.hasV2Captcha() &&
+      !this.hasV3Captcha() &&
+      this.checkUserInput(showV2Captcha) &&
+      !this.checkUserInput(showV3Captcha) &&
+      !this.scriptLoadedStatus) {
       this.appendRecaptchaAPI('https://www.google.com/recaptcha/api.js?render=explicit&hl=' + this.language);
-    } else if (this.hasV3Captcha() && !this.scriptLoadedStatus) {
+    } else if (this.hasV3Captcha() && this.checkUserInput(showV3Captcha) && !this.scriptLoadedStatus) {
       this.appendRecaptchaAPI('https://www.google.com/recaptcha/api.js?render=' + this.v3SiteKey
       + '&hl=' + this.language);
     }
@@ -135,6 +140,10 @@ export class GrecaptchaService {
     } else if (typeof grecaptcha !== 'undefined') {
       grecaptcha.reset();
     }
+  }
+
+  private checkUserInput(input: boolean) {
+    return (input === undefined || input) ? true : false;
   }
 
   private appendRecaptchaAPI(url?: string) {
