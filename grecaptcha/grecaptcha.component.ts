@@ -19,7 +19,7 @@ export class GrecaptchaComponent implements OnDestroy {
     this.gRecaptchaService.callRecaptchaAPI();
     this.captchaScriptSubscription = this.gRecaptchaService.captchaScriptStatus().subscribe((status) => {
       if (status && this.gRecaptchaService.hasV2Captcha()) {
-        this.gRecaptchaService.renderV2Captch('recaptcha-' + this.gRecaptchaId.split(' ').join(''));
+        this.gRecaptchaService.renderV2Captch('grecaptcha-' + this.gRecaptchaId.split(' ').join(''));
       }
     });
   }
