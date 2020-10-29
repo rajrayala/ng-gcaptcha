@@ -1,0 +1,23 @@
+# Editor settings
+.vscode/
+
+# TypeScript-related files
+*.ts
+!*.d.ts
+tsconfig*.json
+tslint.json
+ng-lint.json
+
+# Debug files
+*.js.map
+
+# Other
+.github
+.editorconfig
+
+# Seems like changelog can't be ignored
+# CHANGELOG.md
+CONTRIBUTING.md
+
+# Build files
+ng-grecaptcha-*.tgz

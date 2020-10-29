@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.lib.json",
+  "exclude": [
+    "node_modules",
+    "dist"
+  ],
+  "angularCompilerOptions": {
+    "skipTemplateCodegen": true
+  }
+}
