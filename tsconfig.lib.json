@@ -1,8 +1,7 @@
 {
   "compilerOptions": {
-    "outDir": "../../out-tsc/lib",
-    "target": "es2015",
-    "module": "es2015",
+    "target": "es5",
+    "module": "commonjs",
     "moduleResolution": "node",
     "declaration": true,
     "sourceMap": true,
@@ -14,7 +13,7 @@
     "noUnusedParameters": true,
     "lib": [
       "dom",
-      "es2018"
+      "es2015"
     ]
   },
   "stripInternal": true,
