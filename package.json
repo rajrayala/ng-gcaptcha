@@ -1,13 +1,10 @@
 {
   "name": "ng-grecaptcha",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Angular Library for Google reCAPTCHA V2 and V3",
   "scripts": {
-    "clean": "del-cli 'ng-recaptcha-*.tgz'",
-    "lint:prod": "tslint --project ./tsconfig.json --type-check",
-    "lint": "lint:prod --force",
-    "transpile": "ng-packagr -p ./tsconfig.json",
-    "build": "run-s clean transpile"
+    "transpile": "ng-packagr -p ./tsconfig.lib.json",
+    "build": "transpile"
   },
   "main": "index.js",
   "typings": "index.d.ts",
@@ -24,11 +21,6 @@
   ],
   "author": "Rajendra Kumar Rayala",
   "license": "MIT",
-  "ngPackage": {
-    "lib": {
-      "entryFile": "index.ts"
-    }
-  },
   "optionalDependencies": {
     "@types/grecaptcha": "^3.0.1"
   },
@@ -40,15 +32,13 @@
     "@angular/core": "^6.0.0 || ^7.0.0 || ^8.0.0 || ^9.0.0 || ^10.0.0"
   },
   "devDependencies": {
-    "@angular/common": "^6.0.0",
     "@angular/compiler": "^6.0.0",
     "@angular/compiler-cli": "^6.0.0",
-    "@angular/core": "^6.0.0",
     "@angular/platform-browser": "^6.0.0",
     "ng-packagr": "^4.2.0",
     "rxjs": "^6.1.0",
     "tslint": "~5.7.0",
-    "typescript": "^2.7.2",
+    "typescript": "~2.7.2",
     "zone.js": "^0.8.26"
   },
   "homepage": "https://github.com/rajrayala/ng-grecaptcha#readme"
