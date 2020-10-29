@@ -12,7 +12,7 @@ import { GrecaptchaService } from './grecaptcha.service';
 })
 export class GrecaptchaComponent implements OnDestroy {
 
-  @Input() private gRecaptchaId: string = '';
+  @Input() gRecaptchaId: string = '';
   private captchaScriptSubscription: Subscription;
 
   constructor(private gRecaptchaService: GrecaptchaService) {
