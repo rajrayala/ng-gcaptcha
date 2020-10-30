@@ -131,7 +131,10 @@ export class MyApp {
 
 Note: It is not madatory to provide showV2Captcha or showV3Captcha, By simply providing sitekeys at the provider level the required captcha's will be rendered.
 
-Resetting the Captcha using GrecaptchaService (Resetting recaptcha is only applicable to V2):
+Few of the features which is applicable to V2:
+Get a widget id (applicable only for V2)
+Getting Captcha Response Value
+Resetting the Captcha using GrecaptchaService (Resetting recaptcha is only applicable to V2)
 
 ```typescript
 // app.component.ts
@@ -141,19 +144,24 @@ import { GrecaptchaService } from 'ng-grecaptcha';
 
 @Component({
     selector: 'my-app',
-    template: `<g-recaptcha [gRecaptchaId]="'signIn'"></g-recaptcha>`,
+    template: `<g-recaptcha [gRecaptchaId]="gRecaptchaId"></g-recaptcha>`,
 })
 export class MyApp {
 
+    gRecaptchaId = 'signIn';
+
     constructor(private gRecaptchaService: GrecaptchaService) {
+      this.gRecaptchaService.getWidgetId(gRecaptchaId); // returns a widget id of type number
+      this.gRecaptchaService.getCaptchaResponse(); // Can also provide widge Id as optional input
       this.gRecaptchaService.resetCaptcha(); // Can also provide widge Id as optional input
     }
 
 }
 ```
 
-Alternative way to reset recaptcha:
+Alternative way to getting captcha response and resetting recaptcha:
 ```typescript
+    grecaptcha.getResponse(); // Can also provide widge Id as optional input
     grecaptcha.reset(); // Can also provide widge Id as optional input
 ```
 

@@ -19,6 +19,7 @@ export class GrecaptchaService {
   private size: ReCaptchaV2.Size;
   private badge: ReCaptchaV2.Badge;
   private language: string = '';
+  private widgetId: number;
   private scriptLoadedStatus: boolean = false;
   private captchaSettings = new BehaviorSubject<GrecaptchaSettings>(initialGRecaptchaSettings);
   private hasV2CaptchaKey = new BehaviorSubject<boolean>(false);
@@ -55,10 +56,9 @@ export class GrecaptchaService {
   }
 
   // Only needed for rendering V2 Recaptcha
-  public renderV2Captch(id: string) {
-    // id is technically considered an widget id
+  public renderV2Captch(id: string): number {
     grecaptcha.ready(() => {
-        grecaptcha.render(document.getElementById(id), {
+        return this.widgetId = grecaptcha.render(document.getElementById(id), {
             sitekey: this.v2SiteKey,
             badge: this.badge,
             theme: this.theme,
@@ -68,6 +68,7 @@ export class GrecaptchaService {
             'expired-callback': this.resetCaptcha.bind(this),
         });
     });
+    return null;
   }
 
   // On V2 Recaptcha execution this callback function is called
@@ -91,6 +92,23 @@ export class GrecaptchaService {
             this.returnV3Token.next(v3token);
         });
     });
+  }
+
+  // Get widget id and it's applicable only for V2
+  public getWidgetId(gRecaptchaId: string): number {
+    if (document.getElementById("grecaptcha-" + gRecaptchaId)) {
+        return parseInt(document.getElementById("grecaptcha-" + gRecaptchaId).getAttribute('data-widgetId'));
+    }
+    return null
+  }
+
+  // Applicable only for V2
+  public getCaptchaResponse(widgetId?: number) {
+    if (typeof grecaptcha !== 'undefined' && widgetId) {
+        grecaptcha.getResponse(widgetId);
+    } else if (typeof grecaptcha !== 'undefined') {
+        grecaptcha.getResponse();
+    }
   }
 
   // Get Recaptcha Settings
@@ -133,7 +151,7 @@ export class GrecaptchaService {
     if (typeof grecaptcha !== 'undefined' && widgetId) {
         grecaptcha.reset(widgetId);
     } else if (typeof grecaptcha !== 'undefined') {
-      grecaptcha.reset();
+        grecaptcha.reset();
     }
   }
 
