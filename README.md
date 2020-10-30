@@ -71,7 +71,7 @@ export class MyApp {
     recaptchaV3Response: string;
 
     constructor(private gRecaptchaService: GrecaptchaService) {
-        // Execuring Recaptcha V2
+        // Executing Recaptcha V2
         this.gRecaptchaService.executeV2Captcha();
         // Subscribing to Recaptcha V2 Token
         this.v2Subscription = this.gRecaptchaService.getV2CaptchaToken().subscribe(v2token => {
@@ -81,7 +81,7 @@ export class MyApp {
             }
         });
 
-        // Execuring Recaptcha V3 (accepted optional input with action name)
+        // Executing Recaptcha V3 (accepted optional input with action name)
         this.gRecaptchaService.executeV3Captcha();
         // Subscribing to Recaptcha V2 Token
         this.v3Subscription = this.gRecaptchaService.getV3CaptchaToken().subscribe(v3token => {
