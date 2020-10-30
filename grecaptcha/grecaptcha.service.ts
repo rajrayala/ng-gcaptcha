@@ -19,7 +19,6 @@ export class GrecaptchaService {
   private size: ReCaptchaV2.Size;
   private badge: ReCaptchaV2.Badge;
   private language: string = '';
-  private widgetId: number;
   private scriptLoadedStatus: boolean = false;
   private captchaSettings = new BehaviorSubject<GrecaptchaSettings>(initialGRecaptchaSettings);
   private hasV2CaptchaKey = new BehaviorSubject<boolean>(false);
@@ -56,19 +55,20 @@ export class GrecaptchaService {
   }
 
   // Only needed for rendering V2 Recaptcha
-  public renderV2Captch(id: string): number {
-    grecaptcha.ready(() => {
-        return this.widgetId = grecaptcha.render(document.getElementById(id), {
-            sitekey: this.v2SiteKey,
-            badge: this.badge,
-            theme: this.theme,
-            size: this.size,
-            type: this.type,
-            callback: this.recaptchaV2Callback.bind(this),
-            'expired-callback': this.resetCaptcha.bind(this),
-        });
+  public renderV2Captch(id: string): Promise<number>{
+    return new Promise<number>(resolve => {
+        grecaptcha.ready(() => {
+          resolve(grecaptcha.render(document.getElementById(id), {
+              sitekey: this.v2SiteKey,
+              badge: this.badge,
+              theme: this.theme,
+              size: this.size,
+              type: this.type,
+              callback: this.recaptchaV2Callback.bind(this),
+              'expired-callback': this.resetCaptcha.bind(this),
+          }));
+      });
     });
-    return null;
   }
 
   // On V2 Recaptcha execution this callback function is called
@@ -97,7 +97,7 @@ export class GrecaptchaService {
   // Get widget id and it's applicable only for V2
   public getWidgetId(gRecaptchaId: string): number {
     if (document.getElementById("grecaptcha-" + gRecaptchaId)) {
-        return parseInt(document.getElementById("grecaptcha-" + gRecaptchaId).getAttribute('data-widgetId'));
+        return parseInt(document.getElementById("grecaptcha-" + gRecaptchaId).getAttribute('data-widgetid'));
     }
     return null
   }

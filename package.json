@@ -1,6 +1,6 @@
 {
   "name": "ng-grecaptcha",
-  "version": "0.0.9",
+  "version": "0.2.1",
   "description": "Angular Library for Google reCAPTCHA V2 and V3",
   "scripts": {
     "transpile": "ng-packagr -p ./tsconfig.lib.json",
