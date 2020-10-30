@@ -1,6 +1,8 @@
 # ng-grecaptcha
 Google recaptcha V2 and V3 for Angular 2+
 
+Main Advantage of using ng-grecaptcha is the ability to use V2 and V3 simultaneously, lightweight and ability to control the recaptcha in all possible ways.
+
 To start with, you need to import the `GrecaptchaModule` and
 other required options like:
 `GRECAPTCHA_SETTINGS`, `GRECAPTCHA_LANGUAGE`, `GrecaptchaSettings`
@@ -16,6 +18,10 @@ import {
 import { BrowserModule }  from '@angular/platform-browser';
 import { MyApp } from './app.component.ts';
 
+/*
+  * Available settings:
+  * v2SiteKey, v3SiteKey, badge, theme, size, type
+*/
 const gRecaptchaSettings: GrecaptchaSettings = {
   v2SiteKey: '<recaptchaV2SiteKey>', // Optional
   v3SiteKey: '<recaptchaV3SiteKey>', // Optional
@@ -97,6 +103,58 @@ export class MyApp {
     }
 
 }
+```
+
+New feature where the captcha's can be toggled dynamically using the provided input's for the gcaptcha component.
+
+
+```typescript
+// app.component.ts
+import { Component } from '@angular/core';
+
+@Component({
+    selector: 'my-app',
+    template: `<g-recaptcha
+                  [gRecaptchaId]="'signIn'"
+                  [showV2Captcha]="checkV2Captcha"
+                  [showV3Captcha]="checkV3Captcha"></g-recaptcha>`,
+})
+export class MyApp {
+
+    checkV2Captcha: boolean; // optional
+    checkV3Captcha: boolean; // optional
+
+    constructor() { }
+
+}
+```
+
+Note: It is not madatory to provide showV2Captcha or showV3Captcha, By simply providing sitekeys at the provider level the required captcha's will be rendered.
+
+Resetting the Captcha using GrecaptchaService (Resetting recaptcha is only applicable to V2):
+
+```typescript
+// app.component.ts
+import { Component } from '@angular/core';
+// app.module.ts
+import { GrecaptchaService } from 'ng-grecaptcha';
+
+@Component({
+    selector: 'my-app',
+    template: `<g-recaptcha [gRecaptchaId]="'signIn'"></g-recaptcha>`,
+})
+export class MyApp {
+
+    constructor(private gRecaptchaService: GrecaptchaService) {
+      this.gRecaptchaService.resetCaptcha(); // Can also provide widge Id as optional input
+    }
+
+}
+```
+
+Alternative way to reset recaptcha:
+```typescript
+    grecaptcha.reset(); // Can also provide widge Id as optional input
 ```
 
 Please use Recaptcha V2 and V3 as per requirements.
