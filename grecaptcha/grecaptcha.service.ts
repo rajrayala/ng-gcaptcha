@@ -96,10 +96,10 @@ export class GrecaptchaService {
 
   // Get widget id and it's applicable only for V2
   public getWidgetId(gRecaptchaId: string): number {
-    if (document.getElementById("grecaptcha-" + gRecaptchaId)) {
-        return parseInt(document.getElementById("grecaptcha-" + gRecaptchaId).getAttribute('data-widgetid'));
+    if (document.getElementById("grecaptcha-" + gRecaptchaId.split(' ').join(''))) {
+        return parseInt(document.getElementById("grecaptcha-" + gRecaptchaId.split(' ').join('')).getAttribute('data-widgetid'));
     }
-    return null
+    return null;
   }
 
   // Applicable only for V2
