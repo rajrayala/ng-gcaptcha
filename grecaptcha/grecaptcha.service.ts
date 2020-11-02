@@ -5,7 +5,8 @@ import {
   GRECAPTCHA_SETTINGS,
   GrecaptchaSettings,
   initialGRecaptchaSettings,
-} from './grecaptcha-settings';
+  IRecaptchaResponse,
+} from './grecaptcha.model';
 
 @Injectable({
   providedIn: 'root',
@@ -19,13 +20,12 @@ export class GrecaptchaService {
   private size: ReCaptchaV2.Size;
   private badge: ReCaptchaV2.Badge;
   private language: string = '';
-  private scriptLoadedStatus: boolean = false;
+  private v2RenderScriptStatus: boolean = false;
+  private v3RenderScriptStatus: boolean = false;
   private captchaSettings = new BehaviorSubject<GrecaptchaSettings>(initialGRecaptchaSettings);
-  private hasV2CaptchaKey = new BehaviorSubject<boolean>(false);
-  private hasV3CaptchaKey = new BehaviorSubject<boolean>(false);
   private isScriptLoaded = new BehaviorSubject<boolean>(false);
-  private returnV2Token = new Subject<string>();
-  private returnV3Token = new Subject<string>();
+  private returnV2Token = new Subject<IRecaptchaResponse>();
+  private returnV3Token = new Subject<IRecaptchaResponse>();
 
   constructor(@Optional() @Inject(GRECAPTCHA_SETTINGS) settings?: GrecaptchaSettings,
               @Optional() @Inject(GRECAPTCHA_LANGUAGE) language?: string) {
@@ -41,16 +41,16 @@ export class GrecaptchaService {
       this.language = language;
     }
     this.captchaSettings.next(settings);
-    this.hasV2CaptchaKey.next(this.v2SiteKey ? true : false);
-    this.hasV3CaptchaKey.next(this.v3SiteKey ? true : false);
   }
 
   public callRecaptchaAPI(showV2Captcha: boolean, showV3Captcha: boolean) {
-    if (this.hasV3Captcha() && this.checkUserInput(showV3Captcha) && !this.scriptLoadedStatus) {
-      this.appendRecaptchaAPI('https://www.google.com/recaptcha/api.js?render=' + this.v3SiteKey
+    if (this.v3SiteKey && this.checkUserInput(showV3Captcha) && !this.v3RenderScriptStatus) {
+      this.appendRecaptchaAPI('v3', 'https://www.google.com/recaptcha/api.js?render=' + this.v3SiteKey
       + '&hl=' + this.language);
-    } else if (this.hasV2Captcha() && this.checkUserInput(showV2Captcha) && !this.scriptLoadedStatus) {
-      this.appendRecaptchaAPI('https://www.google.com/recaptcha/api.js?render=explicit&hl=' + this.language);
+      this.v3RenderScriptStatus = true;
+    } else if (this.v2SiteKey && this.checkUserInput(showV2Captcha) && !this.v2RenderScriptStatus && !this.v3RenderScriptStatus) {
+      this.appendRecaptchaAPI('v2', 'https://www.google.com/recaptcha/api.js?render=explicit&hl=' + this.language);
+      this.v2RenderScriptStatus = true;
     }
   }
 
@@ -58,7 +58,7 @@ export class GrecaptchaService {
   public renderV2Captch(id: string): Promise<number>{
     return new Promise<number>(resolve => {
         grecaptcha.ready(() => {
-          resolve(grecaptcha.render(document.getElementById(id), {
+          resolve(grecaptcha.render(document.getElementById('grecaptcha-' + id.split(' ').join('')), {
               sitekey: this.v2SiteKey,
               badge: this.badge,
               theme: this.theme,
@@ -71,27 +71,26 @@ export class GrecaptchaService {
     });
   }
 
-  // On V2 Recaptcha execution this callback function is called
-  public recaptchaV2Callback(v2token: string) {
-    if (v2token) {
-        this.returnV2Token.next(v2token);
-    }
-  }
-
   // For executing V2 Recaptcha
-  public executeV2Captcha() {
+  public executeV2Captcha(): Observable<IRecaptchaResponse> {
     grecaptcha.ready(() => {
         grecaptcha.execute();
     });
+    return this.returnV2Token.asObservable();
   }
 
   // For executing V3 Recaptcha
-  public executeV3Captcha(actionName?: string) {
+  public executeV3Captcha(actionName?: string): Observable<IRecaptchaResponse> {
     grecaptcha.ready(() => {
-        grecaptcha.execute(this.v3SiteKey, { action: actionName ? actionName : 'Recaptcha'}).then((v3token) => {
-            this.returnV3Token.next(v3token);
+        grecaptcha.execute(this.v3SiteKey, { action: actionName ? actionName : 'RecaptchaV3'}).then((v3token) => {
+            this.returnV3Token.next({
+              type: 'v3',
+              token: v3token,
+              action: actionName || 'RecaptchaV3'
+            });
         });
     });
+    return this.returnV3Token.asObservable();
   }
 
   // Get widget id and it's applicable only for V2
@@ -118,12 +117,12 @@ export class GrecaptchaService {
 
   // Check if V2
   public hasV2Captcha(): boolean {
-    return this.hasV2CaptchaKey.getValue();
+    return this.v2SiteKey ? true : false;
   }
 
   // Check if V3
   public hasV3Captcha(): boolean {
-    return this.hasV3CaptchaKey.getValue();
+    return this.v3SiteKey ? true : false;
   }
 
   // Check script loaded status
@@ -134,16 +133,6 @@ export class GrecaptchaService {
   // Getter method to check the script loaded status
   public captchaScriptStatus(): Observable<boolean> {
     return this.isScriptLoaded.asObservable();
-  }
-
-  // Getter method to get the V2 Recapcha token
-  public getV2CaptchaToken(): Observable<string> {
-    return this.returnV2Token.asObservable();
-  }
-
-  // Getter method to get the V3 Recapcha token
-  public getV3CaptchaToken(): Observable<string> {
-    return this.returnV3Token.asObservable();
   }
 
   // Resetting Recaptcha
@@ -159,22 +148,32 @@ export class GrecaptchaService {
     return (input === undefined || input) ? true : false;
   }
 
-  private appendRecaptchaAPI(url?: string) {
+  private appendRecaptchaAPI(type: string, url?: string) {
     const script = document.createElement('script');
     script.innerHTML = '';
     const srcUrl = url || 'https://www.google.com/recaptcha/api.js';
     script.src = srcUrl;
+    script.id = `${type}-grecaptcha-script`;
     script.async = false;
     script.defer = true;
     document.head.appendChild(script);
     script.onload = () => {
         // This will help to check and render the V2 Recaptcha
-        this.scriptLoadedStatus = true;
         this.isScriptLoaded.next(true);
     };
     script.onerror = () => {
         // For rare-case scenario
         document.getElementsByTagName('head')[0].appendChild(script);
     };
+  }
+
+  // On V2 Recaptcha execution this callback function is called
+  private recaptchaV2Callback(v2token: string) {
+    if (v2token) {
+        this.returnV2Token.next({
+          type: 'v2',
+          token: v2token,
+        });
+    }
   }
 }

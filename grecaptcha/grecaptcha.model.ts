@@ -16,3 +16,10 @@ export const initialGRecaptchaSettings: GrecaptchaSettings = {
   v2SiteKey: '',
   v3SiteKey: '',
 };
+
+export interface IRecaptchaResponse {
+  type: string;
+  gRecaptchaId?: string;
+  token: string;
+  action?: string;
+}

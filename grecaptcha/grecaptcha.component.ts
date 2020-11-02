@@ -24,7 +24,7 @@ export class GrecaptchaComponent implements OnInit, OnDestroy {
     this.gRecaptchaService.callRecaptchaAPI(this.showV2Captcha, this.showV3Captcha);
     this.captchaScriptSubscription = this.gRecaptchaService.captchaScriptStatus().subscribe((status) => {
       if (status && (this.gRecaptchaService.hasV2Captcha() && (this.showV2Captcha === undefined || this.showV2Captcha))) {
-        this.gRecaptchaService.renderV2Captch('grecaptcha-' + this.gRecaptchaId.split(' ').join('')).then((id) => {
+        this.gRecaptchaService.renderV2Captch(this.gRecaptchaId).then((id) => {
           this.widgetId = id;
         });
       }
