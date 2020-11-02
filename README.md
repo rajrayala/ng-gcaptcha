@@ -1,12 +1,10 @@
 # ng-grecaptcha
 Google recaptcha V2 and V3 for Angular 2+
 
-Main Advantage of using ng-grecaptcha is the ability to use V2 and V3 simultaneously, lightweight and ability to control the recaptcha in all possible ways.
+**Main Advantage of using ng-grecaptcha is the ability to use V2 and V3 simultaneously, lightweight and ability to control the recaptcha in all possible ways.**
 
-To start with, you need to import the `GrecaptchaModule` and
-other required options like:
+To start with, you need to import the `GrecaptchaModule` and other required options like: <br>
 `GRECAPTCHA_SETTINGS`, `GRECAPTCHA_LANGUAGE`, `GrecaptchaSettings`
-
 ```typescript
 // app.module.ts
 import {
@@ -51,7 +49,6 @@ export class MyAppModule { }
 ```
 
 Once you have done that, the rest is simple:
-
 ```typescript
 // app.component.ts
 import { Component } from '@angular/core';
@@ -105,37 +102,10 @@ export class MyApp {
 }
 ```
 
-New feature where the captcha's can be toggled dynamically using the provided input's for the gcaptcha component.
-
-
-```typescript
-// app.component.ts
-import { Component } from '@angular/core';
-
-@Component({
-    selector: 'my-app',
-    template: `<g-recaptcha
-                  [gRecaptchaId]="'signIn'"
-                  [showV2Captcha]="checkV2Captcha"
-                  [showV3Captcha]="checkV3Captcha"></g-recaptcha>`,
-})
-export class MyApp {
-
-    checkV2Captcha: boolean; // optional
-    checkV3Captcha: boolean; // optional
-
-    constructor() { }
-
-}
-```
-
-Note: It is not madatory to provide showV2Captcha or showV3Captcha, By simply providing sitekeys at the provider level the required captcha's will be rendered.
-
-Few of the features which is applicable to V2:
-Get a widget id (applicable only for V2)
-Getting Captcha Response Value
+Few of the features which is applicable to V2:<br>
+Get a widget id (applicable only for V2)<br>
+Getting Captcha Response Value<br>
 Resetting the Captcha using GrecaptchaService (Resetting recaptcha is only applicable to V2)
-
 ```typescript
 // app.component.ts
 import { Component } from '@angular/core';
@@ -164,5 +134,30 @@ Alternative way to getting captcha response and resetting recaptcha:
     grecaptcha.getResponse(); // Can also provide widge Id as optional input
     grecaptcha.reset(); // Can also provide widge Id as optional input
 ```
+
+
+New feature where the captcha's can be toggled dynamically using the provided input's for the gcaptcha component.
+```typescript
+// app.component.ts
+import { Component } from '@angular/core';
+
+@Component({
+    selector: 'my-app',
+    template: `<g-recaptcha
+                  [gRecaptchaId]="'signIn'"
+                  [showV2Captcha]="checkV2Captcha"
+                  [showV3Captcha]="checkV3Captcha"></g-recaptcha>`,
+})
+export class MyApp {
+
+    checkV2Captcha: boolean; // optional
+    checkV3Captcha: boolean; // optional
+
+    constructor() { }
+
+}
+```
+
+Note: It is not madatory to provide showV2Captcha or showV3Captcha, By simply providing sitekeys at the provider level the required captcha's will be rendered.
 
 Please use Recaptcha V2 and V3 as per requirements.

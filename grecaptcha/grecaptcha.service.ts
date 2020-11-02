@@ -5,7 +5,7 @@ import {
   GRECAPTCHA_SETTINGS,
   GrecaptchaSettings,
   initialGRecaptchaSettings,
-} from './grecaptcha-settings';
+} from './grecaptcha.model';
 
 @Injectable({
   providedIn: 'root',
@@ -71,13 +71,6 @@ export class GrecaptchaService {
     });
   }
 
-  // On V2 Recaptcha execution this callback function is called
-  public recaptchaV2Callback(v2token: string) {
-    if (v2token) {
-        this.returnV2Token.next(v2token);
-    }
-  }
-
   // For executing V2 Recaptcha
   public executeV2Captcha() {
     grecaptcha.ready(() => {
@@ -103,11 +96,11 @@ export class GrecaptchaService {
   }
 
   // Applicable only for V2
-  public getCaptchaResponse(widgetId?: number) {
+  public getCaptchaResponse(widgetId?: number): string {
     if (typeof grecaptcha !== 'undefined' && widgetId) {
-        grecaptcha.getResponse(widgetId);
+        return grecaptcha.getResponse(widgetId);
     } else if (typeof grecaptcha !== 'undefined') {
-        grecaptcha.getResponse();
+        return grecaptcha.getResponse();
     }
   }
 
@@ -157,6 +150,13 @@ export class GrecaptchaService {
 
   private checkUserInput(input: boolean) {
     return (input === undefined || input) ? true : false;
+  }
+
+  // On V2 Recaptcha execution this callback function is called
+  private recaptchaV2Callback(v2token: string) {
+    if (v2token) {
+        this.returnV2Token.next(v2token);
+    }
   }
 
   private appendRecaptchaAPI(url?: string) {
