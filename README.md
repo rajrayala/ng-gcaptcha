@@ -1,7 +1,13 @@
 # ng-grecaptcha
 Google recaptcha V2 and V3 for Angular 2+
 
-Main Advantage of using ng-grecaptcha is the ability to use V2 and V3 simultaneously, lightweight and ability to control the recaptcha in all possible ways.
+**Version:**
+<br>
+0.2.4 -> has the ability to execute the captcha's independently and subscribe to the token at 1 place.
+<br>
+0.3.2 -> has the ability to execute and subscribe the token  with 1 method. 
+
+**Main Advantage of using ng-grecaptcha is the ability to use V2 and V3 simultaneously, lightweight and ability to control the recaptcha in all possible ways.**
 
 To start with, you need to import the `GrecaptchaModule` and
 other required options like:
@@ -102,9 +108,9 @@ export class MyApp {
 ```
 Note: After generating V2 recaptcha token, it is mandatory to reset the recaptcha if it's already submitted to backend.
 
-Few of the features which is applicable to V2:
-Get a widget id (applicable only for V2)
-Getting Captcha Response Value
+Few of the features which is applicable to V2:<br>
+Get a widget id (applicable only for V2)<br>
+Getting Captcha Response Value<br>
 Resetting the Captcha using GrecaptchaService (Resetting recaptcha is only applicable to V2)
 ```typescript
 // app.component.ts
