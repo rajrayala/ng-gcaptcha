@@ -102,11 +102,11 @@ export class GrecaptchaService {
   }
 
   // Applicable only for V2
-  public getCaptchaResponse(widgetId?: number) {
+  public getCaptchaResponse(widgetId?: number): string {
     if (typeof grecaptcha !== 'undefined' && widgetId) {
-        grecaptcha.getResponse(widgetId);
+        return grecaptcha.getResponse(widgetId);
     } else if (typeof grecaptcha !== 'undefined') {
-        grecaptcha.getResponse();
+        return grecaptcha.getResponse();
     }
   }
 
