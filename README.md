@@ -1,16 +1,23 @@
 # ng-grecaptcha
 Google recaptcha V2 and V3 for Angular 2+
 
-**Version:**
+**Version History:**
+<hr>
+0.2.4 -> One method to execute and 1 method to subscribe. 1 same version recaptcha per page
 <br>
-0.2.4 -> has the ability to execute the captcha's independently and subscribe to the token at 1 place.
+0.3.2 -> One method to execute and subscribe. 1 same version recaptcha per page
 <br>
-0.3.2 -> has the ability to execute and subscribe the token  with 1 method. 
+0.4.1 -> One method to execute with callback or bind call back to other method. Multiple recaptcha's per page
+<br>
+
+**Dependencies:**
+<hr>
+Angular, RxJs
 
 **Main Advantage of using ng-grecaptcha is the ability to use V2 and V3 simultaneously, lightweight and ability to control the recaptcha in all possible ways.**
 
-To start with, you need to import the `GrecaptchaModule` and
-other required options like:
+To start with, you need to import the `GrecaptchaModule` and <br>
+other required options like: <br>
 `GRECAPTCHA_SETTINGS`, `GRECAPTCHA_LANGUAGE`, `GrecaptchaSettings`
 ```typescript
 // app.module.ts
@@ -61,11 +68,11 @@ Once you have done that, the rest is simple:
 import { Component } from '@angular/core';
 import { Subscription } from 'rxjs/Subscription';
 // app.module.ts
-import { GrecaptchaService } from 'ng-grecaptcha';
+import { GrecaptchaService, IRecaptchaResponse } from 'ng-grecaptcha';
 
 @Component({
     selector: 'my-app',
-    template: `<g-recaptcha [gRecaptchaId]="'signIn'"></g-recaptcha>`,
+    template: `<g-recaptcha [gRecaptchaId]="gRecaptchaId"></g-recaptcha>`,
 })
 export class MyApp {
 
@@ -74,10 +81,13 @@ export class MyApp {
     recaptchaV2Response: string;
     recaptchaV3Response: string;
 
+    gRecaptchaId = 'signIn';
+    v3ActionName = 'signIn';
+
     constructor(private gRecaptchaService: GrecaptchaService) {
         // Executing Recaptcha V2
-        // Subscribing to Recaptcha V2 Token
-        this.v2Subscription = this.gRecaptchaService.executeV2Captcha().subscribe(data => {
+        // callback to get Recaptcha V2 Token
+        this.gRecaptchaService.executeV2Captcha(gRecaptchaId, (data: IRecaptchaResponse) => {
             if (data) {
                 this.recaptchaV2Response = data.token;
                 // After getting token, we can also execute recaptcha V3 at this step
@@ -85,8 +95,8 @@ export class MyApp {
         });
 
         // Executing Recaptcha V3 (accepted optional input with action name)
-        // Subscribing to Recaptcha V2 Token
-        this.v3Subscription = this.gRecaptchaService.executeV3Captcha().subscribe(data => {
+        // callback to get Recaptcha V3 Token
+        this.gRecaptchaService.executeV3Captcha(gRecaptchaId, v3ActionName, (data: IRecaptchaResponse) => {
             if (data) {
                 this.recaptchaV3Response = data.token;
                 // After getting token, we can also execute recaptcha V2 at this step
@@ -94,21 +104,11 @@ export class MyApp {
         });
     }
 
-    // Don't forget to unsubscribe
-    ngOnDestroy() {
-        if (this.v2Subscription) {
-            this.v2Subscription.unsubscribe();
-        }
-        if (this.v3Subscription) {
-            this.v3Subscription.unsubscribe();
-        }
-    }
-
 }
 ```
-Note: After generating V2 recaptcha token, it is mandatory to reset the recaptcha if it's already submitted to backend.
+**Note:** After generating V2 recaptcha token, it is mandatory to reset the recaptcha if it's already submitted to backend.
 
-Few of the features which is applicable to V2:<br>
+Few of the features which is applicable to **V2**:<br>
 Get a widget id (applicable only for V2)<br>
 Getting Captcha Response Value<br>
 Resetting the Captcha using GrecaptchaService (Resetting recaptcha is only applicable to V2)
@@ -125,11 +125,12 @@ import { GrecaptchaService } from 'ng-grecaptcha';
 export class MyApp {
 
     gRecaptchaId = 'signIn';
+    widgetId: number;
 
     constructor(private gRecaptchaService: GrecaptchaService) {
-      this.gRecaptchaService.getWidgetId(gRecaptchaId); // returns a widget id of type number
-      this.gRecaptchaService.getCaptchaResponse(); // Can also provide widge Id as optional input
-      this.gRecaptchaService.resetCaptcha(); // Can also provide widge Id as optional input
+      this.widgetId = this.gRecaptchaService.getWidgetId(gRecaptchaId); // returns a widget id of type number
+      this.gRecaptchaService.getCaptchaResponse(widgetId); // input is optional and returns a token of type string
+      this.gRecaptchaService.resetCaptcha(widgetId); // input is optional
     }
 
 }
@@ -141,7 +142,7 @@ Alternative way to getting captcha response and resetting recaptcha:
     grecaptcha.reset(); // Can also provide widge Id as optional input
 ```
 
-New feature where the captcha's can be toggled dynamically using the provided input's for the gcaptcha component.
+New feature where the captcha's can be toggled dynamically on load using the provided input's for the gcaptcha component.
 ```typescript
 // app.component.ts
 import { Component } from '@angular/core';
@@ -163,6 +164,6 @@ export class MyApp {
 }
 ```
 
-Note: It is not madatory to provide showV2Captcha or showV3Captcha, By simply providing sitekeys at the provider level the required captcha's will be rendered.
+**Note:** It is not madatory to provide showV2Captcha or showV3Captcha, By simply providing sitekeys at the provider level the required captcha's will be rendered.
 
-Please use Recaptcha V2 and V3 as per requirements.
+**Please use Recaptcha V2 and V3 as per requirements.**
