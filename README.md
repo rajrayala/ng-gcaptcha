@@ -1,23 +1,28 @@
-# ng-grecaptcha
+## ng-grecaptcha [![npm version](https://badge.fury.io/js/ng-grecaptcha.svg)](http://badge.fury.io/js/ng-grecaptcha)
 Google recaptcha V2 and V3 for Angular 2+
-
-**Version History:**
-<hr>
-0.2.4 -> One method to execute and 1 method to subscribe. 1 same version recaptcha per page
-<br>
-0.3.2 -> One method to execute and subscribe. 1 same version recaptcha per page
-<br>
-0.4.1 -> One method to execute with callback or bind call back to other method. Multiple recaptcha's per page
-<br>
-
-**Dependencies:**
-<hr>
-Angular, RxJs
 
 **Main Advantage of using ng-grecaptcha is the ability to use V2 and V3 simultaneously, lightweight and ability to control the recaptcha in all possible ways.**
 
-To start with, you need to import the `GrecaptchaModule` and <br>
-other required options like: <br>
+## Version History:
+0.2.4 -> One method to execute and 1 method to subscribe. 1 same version recaptcha per page
+
+0.3.2 -> One method to execute and subscribe. 1 same version recaptcha per page
+
+0.4.3 -> One method to execute with callback or bind call back to other method. Multiple recaptcha's per page
+
+## Dependencies:
+Angular, RxJs
+
+## <a name="installation"></a>Installation
+The easiest way is to install through [yarn](https://yarnpkg.com/package/ng-grecaptcha) or [npm](https://www.npmjs.com/package/ng-grecaptcha):
+```sh
+yarn add ng-grecaptcha
+npm i ng-grecaptcha --save
+```
+
+## Usage:
+To start with, you need to import the `GrecaptchaModule` and other required options like:
+
 `GRECAPTCHA_SETTINGS`, `GRECAPTCHA_LANGUAGE`, `GrecaptchaSettings`
 ```typescript
 // app.module.ts
@@ -108,10 +113,11 @@ export class MyApp {
 ```
 **Note:** After generating V2 recaptcha token, it is mandatory to reset the recaptcha if it's already submitted to backend.
 
-Few of the features which is applicable to **V2**:<br>
-Get a widget id (applicable only for V2)<br>
-Getting Captcha Response Value<br>
-Resetting the Captcha using GrecaptchaService (Resetting recaptcha is only applicable to V2)
+Few of the features which is applicable only to **V2 Recaptcha**:
+
+- Widget id,
+- Captcha Response and
+- Resetting Captcha
 ```typescript
 // app.component.ts
 import { Component } from '@angular/core';
@@ -167,3 +173,11 @@ export class MyApp {
 **Note:** It is not madatory to provide showV2Captcha or showV3Captcha, By simply providing sitekeys at the provider level the required captcha's will be rendered.
 
 **Please use Recaptcha V2 and V3 as per requirements.**
+
+## Contributing
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+Please make sure to update tests as appropriate.
+
+## License
+[MIT](https://choosealicense.com/licenses/mit/)
