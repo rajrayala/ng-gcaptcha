@@ -12,11 +12,6 @@ export interface GrecaptchaSettings {
   badge?: ReCaptchaV2.Badge;
 }
 
-export const initialGRecaptchaSettings: GrecaptchaSettings = {
-  v2SiteKey: '',
-  v3SiteKey: '',
-};
-
 export interface IRecaptchaResponse {
   type: string;
   gRecaptchaId?: string;
