@@ -1,5 +1,4 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { take } from 'rxjs/operators';
+import { Component, Input, OnInit } from '@angular/core';
 import { GrecaptchaService } from './grecaptcha.service';
 
 @Component({
@@ -10,7 +9,7 @@ import { GrecaptchaService } from './grecaptcha.service';
   `,
   styles: [],
 })
-export class GrecaptchaComponent implements OnInit, OnDestroy {
+export class GrecaptchaComponent implements OnInit {
 
   @Input() gRecaptchaId: string = '';
   @Input() showV2Captcha: boolean;
@@ -22,11 +21,7 @@ export class GrecaptchaComponent implements OnInit, OnDestroy {
   public ngOnInit() {
     this.gRecaptchaService.initializeRecaptcha(this.showV2Captcha, this.showV3Captcha, this.gRecaptchaId, (id) => {
       this.widgetId = id;
-    })
-  }
-
-  public ngOnDestroy() {
-    this.gRecaptchaService.resetCaptcha(this.gRecaptchaService.getWidgetId(this.gRecaptchaId));
+    });
   }
 
   public getWidgetId(): number {
