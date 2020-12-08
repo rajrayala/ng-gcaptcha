@@ -24,7 +24,7 @@ export class GrecaptchaService {
   private returnV2Token = new Subject<IRecaptchaResponse>();
 
   constructor(@Optional() @Inject(GRECAPTCHA_SETTINGS) settings?: GrecaptchaSettings,
-              @Optional() @Inject(GRECAPTCHA_LANGUAGE) language?: string) {
+    @Optional() @Inject(GRECAPTCHA_LANGUAGE) language?: string) {
     if (settings) {
       this.v2SiteKey = settings.v2SiteKey;
       this.v3SiteKey = settings.v3SiteKey;
