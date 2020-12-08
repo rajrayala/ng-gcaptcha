@@ -1,5 +1,5 @@
 import { Inject, Injectable, Optional } from '@angular/core';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { take } from 'rxjs/operators';
 import {
   GRECAPTCHA_LANGUAGE,
@@ -8,9 +8,7 @@ import {
   IRecaptchaResponse,
 } from './grecaptcha.model';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable()
 export class GrecaptchaService {
 
   private v2SiteKey: string;
@@ -26,7 +24,7 @@ export class GrecaptchaService {
   private returnV2Token = new Subject<IRecaptchaResponse>();
 
   constructor(@Optional() @Inject(GRECAPTCHA_SETTINGS) settings?: GrecaptchaSettings,
-    @Optional() @Inject(GRECAPTCHA_LANGUAGE) language?: string) {
+              @Optional() @Inject(GRECAPTCHA_LANGUAGE) language?: string) {
     if (settings) {
       this.v2SiteKey = settings.v2SiteKey;
       this.v3SiteKey = settings.v3SiteKey;
@@ -70,7 +68,7 @@ export class GrecaptchaService {
       grecaptcha.execute(this.v3SiteKey, { action: actionName ? actionName : gRecaptchaId }).then((v3token: string) => {
         callback({
           type: 'v3',
-          gRecaptchaId: gRecaptchaId,
+          gRecaptchaId,
           token: v3token,
           action: actionName || gRecaptchaId
         });
@@ -80,8 +78,8 @@ export class GrecaptchaService {
 
   // Get widget id and it's applicable only for V2
   public getWidgetId(gRecaptchaId: string): number {
-    if (document.getElementById("grecaptcha-" + gRecaptchaId.split(' ').join(''))) {
-      return parseInt(document.getElementById("grecaptcha-" + gRecaptchaId.split(' ').join('')).getAttribute('data-widgetid'));
+    if (document.getElementById('grecaptcha-' + gRecaptchaId.split(' ').join(''))) {
+      return parseInt(document.getElementById('grecaptcha-' + gRecaptchaId.split(' ').join('')).getAttribute('data-widgetid'));
     }
     return null;
   }

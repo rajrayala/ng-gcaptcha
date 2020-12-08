@@ -3,14 +3,7 @@ Google recaptcha V2 and V3 for Angular 2+
 
 **Main Advantage of using ng-grecaptcha is the ability to use V2 and V3 simultaneously, lightweight and ability to control the recaptcha in all possible ways.**
 
-## Version History:
-0.2.4 -> One method to execute and 1 method to subscribe. 1 same version recaptcha per page
-
-0.3.2 -> One method to execute and subscribe. 1 same version recaptcha per page
-
-0.4.3 -> One method to execute with callback or bind call back to other method. Multiple recaptcha's per page
-
-## Dependencies:
+## Dependencies
 Angular, RxJs
 
 ## <a name="installation"></a>Installation
