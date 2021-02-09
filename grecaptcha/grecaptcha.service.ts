@@ -20,7 +20,8 @@ export class GrecaptchaService {
   private language: string = '';
   private v2RenderScriptStatus: boolean = false;
   private v3RenderScriptStatus: boolean = false;
-  private isScriptLoaded = new Subject<boolean>();
+  private isScriptLoaded: boolean = false;
+  private isScriptLoadedSub = new Subject<boolean>();
   private returnV2Token = new Subject<IRecaptchaResponse>();
 
   constructor(@Optional() @Inject(GRECAPTCHA_SETTINGS) settings?: GrecaptchaSettings,
@@ -47,6 +48,9 @@ export class GrecaptchaService {
         });
       }
     });
+    if (this.isScriptLoaded) {
+      this.isScriptLoadedSub.next(true);
+    }
   }
 
   // For executing V2 Recaptcha
@@ -95,7 +99,7 @@ export class GrecaptchaService {
 
   // Getter method to check the script loaded status
   public captchaScriptStatus(): Observable<boolean> {
-    return this.isScriptLoaded.asObservable();
+    return this.isScriptLoadedSub.asObservable();
   }
 
   private getV2CaptchaToken(): Observable<IRecaptchaResponse> {
@@ -120,7 +124,7 @@ export class GrecaptchaService {
       this.appendRecaptchaAPI('v3', 'https://www.google.com/recaptcha/api.js?render=' + this.v3SiteKey
         + '&hl=' + this.language);
       this.v3RenderScriptStatus = true;
-    } else if (this.v2SiteKey && this.checkUserInput(showV2Captcha) && !this.v2RenderScriptStatus && !this.v2RenderScriptStatus) {
+    } else if (this.v2SiteKey && this.checkUserInput(showV2Captcha) && !this.v2RenderScriptStatus && !this.v3RenderScriptStatus) {
       this.appendRecaptchaAPI('v2', 'https://www.google.com/recaptcha/api.js?render=explicit&hl=' + this.language);
       this.v2RenderScriptStatus = true;
     }
@@ -137,7 +141,8 @@ export class GrecaptchaService {
     document.head.appendChild(script);
     script.onload = () => {
       // This will help to check and render the V2 Recaptcha
-      this.isScriptLoaded.next(true);
+      this.isScriptLoaded = true;
+      this.isScriptLoadedSub.next(true);
     };
     script.onerror = () => {
       // For rare-case scenario
