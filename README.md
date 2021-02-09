@@ -163,6 +163,24 @@ export class MyApp {
 }
 ```
 
+From Version 0.5.X, there is an option to update the recaptcha language using Behavior Subject or Using getter setter class which has _value as variable to set the language.
+**Note:** Recaptcha language can only be changed before the Grecaptcha service is loaded.
+```typescript
+// app.module.ts
+provide: [
+  {
+    provide: GRECAPTCHA_LANGUAGE,
+    useValue: new BehaviorSubject('')
+  },
+]
+
+// set grecaptcha language
+constructor(@Inject(GRECAPTCHA_LANGUAGE) grecaptcha_language: BehaviorSubject<string>) {
+  grecaptcha_language.next('en-US')
+}
+
+```
+
 **Note:** It is not madatory to provide showV2Captcha or showV3Captcha, By simply providing sitekeys at the provider level the required captcha's will be rendered.
 
 **Please use Recaptcha V2 and V3 as per requirements.**

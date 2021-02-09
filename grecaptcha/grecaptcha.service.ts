@@ -17,7 +17,7 @@ export class GrecaptchaService {
   private type: ReCaptchaV2.Type;
   private size: ReCaptchaV2.Size;
   private badge: ReCaptchaV2.Badge;
-  private language: string = '';
+  private language: string | any = '';
   private v2RenderScriptStatus: boolean = false;
   private v3RenderScriptStatus: boolean = false;
   private isScriptLoaded: boolean = false;
@@ -25,7 +25,7 @@ export class GrecaptchaService {
   private returnV2Token = new Subject<IRecaptchaResponse>();
 
   constructor(@Optional() @Inject(GRECAPTCHA_SETTINGS) settings?: GrecaptchaSettings,
-              @Optional() @Inject(GRECAPTCHA_LANGUAGE) language?: string) {
+              @Optional() @Inject(GRECAPTCHA_LANGUAGE) language?: string | any) {
     if (settings) {
       this.v2SiteKey = settings.v2SiteKey;
       this.v3SiteKey = settings.v3SiteKey;
@@ -35,7 +35,7 @@ export class GrecaptchaService {
       this.badge = settings.badge;
     }
     if (language) {
-      this.language = language;
+      language._value ? this.language = language._value : this.language = language;
     }
   }
 
