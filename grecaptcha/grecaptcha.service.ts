@@ -53,6 +53,21 @@ export class GrecaptchaService {
     }
   }
 
+  public callRecaptchaAPI(showV2Captcha: boolean, showV3Captcha: boolean): Promise<boolean> {
+    return new Promise<boolean>(resolve => {
+      if (this.v3SiteKey && this.checkUserInput(showV3Captcha) && !this.v3RenderScriptStatus) {
+        this.appendRecaptchaAPI('v3', 'https://www.google.com/recaptcha/api.js?render=' + this.v3SiteKey
+          + '&hl=' + this.language, (status) => { status ? resolve(true) : resolve(false) });
+        this.v3RenderScriptStatus = true;
+      } else if (this.v2SiteKey && this.checkUserInput(showV2Captcha) && !this.v2RenderScriptStatus && !this.v3RenderScriptStatus) {
+        this.appendRecaptchaAPI('v2', 'https://www.google.com/recaptcha/api.js?render=explicit&hl=' + this.language, (status) => { status ? resolve(true) : resolve(false) });
+        this.v2RenderScriptStatus = true;
+      } else {
+        resolve(true);
+      }
+    });
+  }
+
   // For executing V2 Recaptcha
   public executeV2Captcha(gRecaptchaId: string, callback: (callback: IRecaptchaResponse) => void) {
     grecaptcha.ready(() => {
@@ -119,28 +134,17 @@ export class GrecaptchaService {
     return (input === undefined || input) ? true : false;
   }
 
-  private callRecaptchaAPI(showV2Captcha: boolean, showV3Captcha: boolean) {
-    if (this.v3SiteKey && this.checkUserInput(showV3Captcha) && !this.v3RenderScriptStatus) {
-      this.appendRecaptchaAPI('v3', 'https://www.google.com/recaptcha/api.js?render=' + this.v3SiteKey
-        + '&hl=' + this.language);
-      this.v3RenderScriptStatus = true;
-    } else if (this.v2SiteKey && this.checkUserInput(showV2Captcha) && !this.v2RenderScriptStatus && !this.v3RenderScriptStatus) {
-      this.appendRecaptchaAPI('v2', 'https://www.google.com/recaptcha/api.js?render=explicit&hl=' + this.language);
-      this.v2RenderScriptStatus = true;
-    }
-  }
-
-  private appendRecaptchaAPI(type: string, url?: string) {
+  private appendRecaptchaAPI(type: string, url: string, callback: (callback: boolean) => void) {
     const script = document.createElement('script');
     script.innerHTML = '';
-    const srcUrl = url || 'https://www.google.com/recaptcha/api.js';
-    script.src = srcUrl;
+    script.src = url;
     script.id = `${type}-grecaptcha-script`;
     script.async = false;
     script.defer = true;
     document.head.appendChild(script);
     script.onload = () => {
       // This will help to check and render the V2 Recaptcha
+      callback(true);
       this.isScriptLoaded = true;
       this.isScriptLoadedSub.next(true);
     };

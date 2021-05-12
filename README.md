@@ -164,6 +164,7 @@ export class MyApp {
 ```
 
 From Version 0.5.X, there is an option to update the recaptcha language using Behavior Subject or Using getter setter class which has _value as variable to set the language.
+
 **Note:** Recaptcha language can only be changed before the Grecaptcha service is loaded.
 ```typescript
 // app.module.ts
@@ -177,6 +178,36 @@ provide: [
 // set grecaptcha language
 constructor(@Inject(GRECAPTCHA_LANGUAGE) grecaptcha_language: BehaviorSubject<string>) {
   grecaptcha_language.next('en-US')
+}
+
+```
+
+If <g-recaptcha></g-recaptcha> HTML template is not declared, we can make use of calling the google recaptcha api using callRecaptchaAPI method.
+
+```typescript
+// app.module.ts
+import { Component } from '@angular/core';
+// app.module.ts
+import { GrecaptchaService } from 'ng-grecaptcha';
+
+@Component({
+    selector: 'my-app'
+})
+export class MyApp {
+
+    checkV2Captcha: boolean;
+    checkV3Captcha: boolean;
+
+    constructor(private gRecaptchaService: GrecaptchaService) {
+      this.gRecaptchaService.callRecaptchaAPI(checkV2Captcha, checkV3Captcha, this.captchaExecuted.bind(this));
+    }
+
+    captchaExecuted(status: boolean) {
+      if (status) {
+        // execute v2 captcha or v3 captcha accordingly
+      }
+    }
+
 }
 
 ```
