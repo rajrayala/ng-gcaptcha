@@ -17,14 +17,15 @@ export class GrecaptchaService {
   private type: ReCaptchaV2.Type;
   private size: ReCaptchaV2.Size;
   private badge: ReCaptchaV2.Badge;
-  private language: string = '';
+  private language: string | any = '';
   private v2RenderScriptStatus: boolean = false;
   private v3RenderScriptStatus: boolean = false;
-  private isScriptLoaded = new Subject<boolean>();
+  private isScriptLoaded: boolean = false;
+  private isScriptLoadedSub = new Subject<boolean>();
   private returnV2Token = new Subject<IRecaptchaResponse>();
 
   constructor(@Optional() @Inject(GRECAPTCHA_SETTINGS) settings?: GrecaptchaSettings,
-              @Optional() @Inject(GRECAPTCHA_LANGUAGE) language?: string) {
+              @Optional() @Inject(GRECAPTCHA_LANGUAGE) language?: string | any) {
     if (settings) {
       this.v2SiteKey = settings.v2SiteKey;
       this.v3SiteKey = settings.v3SiteKey;
@@ -34,7 +35,7 @@ export class GrecaptchaService {
       this.badge = settings.badge;
     }
     if (language) {
-      this.language = language;
+      language._value ? this.language = language._value : this.language = language;
     }
   }
 
@@ -45,6 +46,29 @@ export class GrecaptchaService {
         this.renderV2Captch(gRecaptchaId).then((id: number) => {
           callback(id);
         });
+      }
+    });
+    this.scriptLoaded();
+  }
+
+  private callRecaptchaAPI(showV2Captcha: boolean, showV3Captcha: boolean) {
+      if (this.v3SiteKey && this.checkUserInput(showV3Captcha) && !this.v3RenderScriptStatus) {
+        this.callRecaptchaV3API();
+      } else if (this.v2SiteKey && this.checkUserInput(showV2Captcha) && !this.v2RenderScriptStatus && !this.v3RenderScriptStatus) {
+        this.v2RenderScriptStatus = true;
+        this.appendRecaptchaAPI('v2', 'https://www.google.com/recaptcha/api.js?render=explicit&hl=' + this.language);
+      }
+  }
+
+  public callRecaptchaV3API(): Promise<boolean> {
+    return new Promise<boolean>(resolve => {
+      if (!this.v3RenderScriptStatus) {
+        this.v3RenderScriptStatus = true;
+        this.appendRecaptchaAPI('v3', 'https://www.google.com/recaptcha/api.js?render=' + this.v3SiteKey
+              + '&hl=' + this.language, (status) => { status ? resolve(true) : resolve(false) });
+      } else {
+        this.scriptLoaded();
+        resolve(true);
       }
     });
   }
@@ -63,14 +87,13 @@ export class GrecaptchaService {
   }
 
   // For executing V3 Recaptcha
-  public executeV3Captcha(gRecaptchaId: string, actionName: string, callback: (callback: IRecaptchaResponse) => void) {
+  public executeV3Captcha(actionName: string, callback: (callback: IRecaptchaResponse) => void) {
     grecaptcha.ready(() => {
-      grecaptcha.execute(this.v3SiteKey, { action: actionName ? actionName : gRecaptchaId }).then((v3token: string) => {
+      grecaptcha.execute(this.v3SiteKey, { action: actionName }).then((v3token: string) => {
         callback({
           type: 'v3',
-          gRecaptchaId,
           token: v3token,
-          action: actionName || gRecaptchaId
+          action: actionName
         });
       });
     });
@@ -95,7 +118,7 @@ export class GrecaptchaService {
 
   // Getter method to check the script loaded status
   public captchaScriptStatus(): Observable<boolean> {
-    return this.isScriptLoaded.asObservable();
+    return this.isScriptLoadedSub.asObservable();
   }
 
   private getV2CaptchaToken(): Observable<IRecaptchaResponse> {
@@ -111,33 +134,27 @@ export class GrecaptchaService {
     }
   }
 
+  private scriptLoaded() {
+    if (this.isScriptLoaded) { this.isScriptLoadedSub.next(true); }
+  }
+
   private checkUserInput(input: boolean): boolean {
     return (input === undefined || input) ? true : false;
   }
 
-  private callRecaptchaAPI(showV2Captcha: boolean, showV3Captcha: boolean) {
-    if (this.v3SiteKey && this.checkUserInput(showV3Captcha) && !this.v3RenderScriptStatus) {
-      this.appendRecaptchaAPI('v3', 'https://www.google.com/recaptcha/api.js?render=' + this.v3SiteKey
-        + '&hl=' + this.language);
-      this.v3RenderScriptStatus = true;
-    } else if (this.v2SiteKey && this.checkUserInput(showV2Captcha) && !this.v2RenderScriptStatus && !this.v2RenderScriptStatus) {
-      this.appendRecaptchaAPI('v2', 'https://www.google.com/recaptcha/api.js?render=explicit&hl=' + this.language);
-      this.v2RenderScriptStatus = true;
-    }
-  }
-
-  private appendRecaptchaAPI(type: string, url?: string) {
+  private appendRecaptchaAPI(type: string, url: string, callback?: (callback: boolean) => void) {
     const script = document.createElement('script');
     script.innerHTML = '';
-    const srcUrl = url || 'https://www.google.com/recaptcha/api.js';
-    script.src = srcUrl;
+    script.src = url;
     script.id = `${type}-grecaptcha-script`;
     script.async = false;
     script.defer = true;
     document.head.appendChild(script);
     script.onload = () => {
       // This will help to check and render the V2 Recaptcha
-      this.isScriptLoaded.next(true);
+      this.isScriptLoaded = true;
+      this.isScriptLoadedSub.next(true);
+      callback(true);
     };
     script.onerror = () => {
       // For rare-case scenario
