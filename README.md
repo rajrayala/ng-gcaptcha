@@ -182,30 +182,35 @@ constructor(@Inject(GRECAPTCHA_LANGUAGE) grecaptcha_language: BehaviorSubject<st
 
 ```
 
-If <g-recaptcha></g-recaptcha> HTML template is not declared, we can make use of calling the google recaptcha api using callRecaptchaAPI method.
+If only V3 Recaptcha is required, we can make use of calling the google recaptcha api using callRecaptchaV3API method and then execute the V3 Recaptcha with executeV3Captcha method.
 
 ```typescript
 // app.module.ts
 import { Component } from '@angular/core';
 // app.module.ts
-import { GrecaptchaService } from 'ng-grecaptcha';
+import { GrecaptchaService, IRecaptchaResponse } from 'ng-grecaptcha';
 
 @Component({
     selector: 'my-app'
 })
 export class MyApp {
 
-    checkV2Captcha: boolean;
-    checkV3Captcha: boolean;
+    captchaLoaded: boolean;
 
     constructor(private gRecaptchaService: GrecaptchaService) {
-      this.gRecaptchaService.callRecaptchaAPI(checkV2Captcha, checkV3Captcha, this.captchaExecuted.bind(this));
+      this.gRecaptchaService.callRecaptchaV3API().then(status => {
+        this.captchaLoaded = status;
+      });
     }
 
-    captchaExecuted(status: boolean) {
-      if (status) {
-        // execute v2 captcha or v3 captcha accordingly
-      }
+    executeCaptcha() {
+      this.gRecaptchaService.captchaScriptStatus.subscribe(status => {
+        if (status) {
+          this.gRecaptchaService.executeV3Captcha(this.recaptchaId, (data: IRecaptchaResponse) => {
+            console.log('token: ', data.token);
+          });
+        }
+      })
     }
 
 }
