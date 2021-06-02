@@ -204,7 +204,7 @@ export class MyApp {
     }
 
     executeCaptcha() {
-      this.gRecaptchaService.captchaScriptStatus.subscribe(status => {
+      this.gRecaptchaService.captchaScriptStatus().subscribe(status => {
         if (status) {
           this.gRecaptchaService.executeV3Captcha(this.recaptchaId, (data: IRecaptchaResponse) => {
             console.log('token: ', data.token);

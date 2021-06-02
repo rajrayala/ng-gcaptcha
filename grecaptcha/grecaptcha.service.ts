@@ -1,5 +1,5 @@
 import { Inject, Injectable, Optional } from '@angular/core';
-import { Observable, Subject } from 'rxjs';
+import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { take } from 'rxjs/operators';
 import {
   GRECAPTCHA_LANGUAGE,
@@ -17,15 +17,14 @@ export class GrecaptchaService {
   private type: ReCaptchaV2.Type;
   private size: ReCaptchaV2.Size;
   private badge: ReCaptchaV2.Badge;
-  private language: string | any = '';
   private v2RenderScriptStatus: boolean = false;
   private v3RenderScriptStatus: boolean = false;
-  private isScriptLoaded: boolean = false;
-  private isScriptLoadedSub = new Subject<boolean>();
+  private isScriptLoadedSub = new BehaviorSubject<boolean>(false);
+  private isScriptLoadedSub2 = new Subject<boolean>();
   private returnV2Token = new Subject<IRecaptchaResponse>();
 
   constructor(@Optional() @Inject(GRECAPTCHA_SETTINGS) settings?: GrecaptchaSettings,
-              @Optional() @Inject(GRECAPTCHA_LANGUAGE) language?: string | any) {
+              @Optional() @Inject(GRECAPTCHA_LANGUAGE) private lang?: string | any) {
     if (settings) {
       this.v2SiteKey = settings.v2SiteKey;
       this.v3SiteKey = settings.v3SiteKey;
@@ -34,14 +33,11 @@ export class GrecaptchaService {
       this.size = settings.size;
       this.badge = settings.badge;
     }
-    if (language) {
-      language._value ? this.language = language._value : this.language = language;
-    }
   }
 
   public initializeRecaptcha(showV2Captcha: boolean, showV3Captcha: boolean, gRecaptchaId: string, callback: (callback: number) => void) {
     this.callRecaptchaAPI(showV2Captcha, showV3Captcha);
-    this.captchaScriptStatus().pipe(take(1)).subscribe((status: boolean) => {
+    this.captchaScriptStatus2().pipe(take(1)).subscribe((status: boolean) => {
       if (status && (this.v2SiteKey && (this.checkUserInput(showV2Captcha)))) {
         this.renderV2Captch(gRecaptchaId).then((id: number) => {
           callback(id);
@@ -56,7 +52,7 @@ export class GrecaptchaService {
         this.callRecaptchaV3API();
       } else if (this.v2SiteKey && this.checkUserInput(showV2Captcha) && !this.v2RenderScriptStatus && !this.v3RenderScriptStatus) {
         this.v2RenderScriptStatus = true;
-        this.appendRecaptchaAPI('v2', 'https://www.google.com/recaptcha/api.js?render=explicit&hl=' + this.language);
+        this.appendRecaptchaAPI('v2', 'https://www.google.com/recaptcha/api.js?render=explicit&hl=' + this.getUserLang(this.lang));
       }
   }
 
@@ -65,7 +61,7 @@ export class GrecaptchaService {
       if (!this.v3RenderScriptStatus) {
         this.v3RenderScriptStatus = true;
         this.appendRecaptchaAPI('v3', 'https://www.google.com/recaptcha/api.js?render=' + this.v3SiteKey
-              + '&hl=' + this.language, (status) => { status ? resolve(true) : resolve(false) });
+              + '&hl=' + this.getUserLang(this.lang), (status) => { status ? resolve(true) : resolve(false) });
       } else {
         this.scriptLoaded();
         resolve(true);
@@ -121,6 +117,11 @@ export class GrecaptchaService {
     return this.isScriptLoadedSub.asObservable();
   }
 
+  // Getter method to check the script loaded status
+  private captchaScriptStatus2(): Observable<boolean> {
+    return this.isScriptLoadedSub2.asObservable();
+  }
+
   private getV2CaptchaToken(): Observable<IRecaptchaResponse> {
     return this.returnV2Token.asObservable();
   }
@@ -135,11 +136,15 @@ export class GrecaptchaService {
   }
 
   private scriptLoaded() {
-    if (this.isScriptLoaded) { this.isScriptLoadedSub.next(true); }
+    if (this.isScriptLoadedSub.getValue()) { this.isScriptLoadedSub2.next(true); }
   }
 
   private checkUserInput(input: boolean): boolean {
     return (input === undefined || input) ? true : false;
+  }
+
+  private getUserLang(lang) {
+    if (lang) { return lang._value ? lang._value : lang; }
   }
 
   private appendRecaptchaAPI(type: string, url: string, callback?: (callback: boolean) => void) {
@@ -152,9 +157,9 @@ export class GrecaptchaService {
     document.head.appendChild(script);
     script.onload = () => {
       // This will help to check and render the V2 Recaptcha
-      this.isScriptLoaded = true;
       this.isScriptLoadedSub.next(true);
-      callback(true);
+      this.isScriptLoadedSub2.next(true);
+      if (typeof callback === 'function') { callback(true) };
     };
     script.onerror = () => {
       // For rare-case scenario
